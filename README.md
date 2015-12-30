@@ -3,7 +3,7 @@ Devrouter
 
 Devrouter is a simple tool for managing lots of local webservers for development. Do you ever get the problem where you have one project running on port 8000, one on 8080, one on 3000, etc and you can't keep track of them any more? That's the problem devrouter is designed to solve.
 
-Instead of typing, `node myserver.js`, you can type `devroute node myserver.js`. Devrouter will find a free port, set it to the `PORT` environment variable so your server can pick it up. Meanwhile, it also passes that port and the name of the current directory to the Devrouter service's HTTP proxy. So you could now visit it at, for example, `http://myserver.dev`.
+Instead of typing, `node myserver.js`, you can type `devroute node myserver.js`. Devrouter will find a free port and set it to the `PORT` environment variable so your server can pick it up. Meanwhile, it also passes that port and the name of the current directory to the Devrouter service's HTTP proxy. So you can now visit it at, for example, `http://myserver.dev`.
 
 Now all your local development services can be referenced by nice names instead of arbitrary ports!
 
@@ -17,7 +17,7 @@ You run the Devrouter service with `devrouter`, but you will probably need to `s
 
 If you want it to run at startup, you can copy [the plist file](https://github.com/sgentle/devrouter/blob/master/com.samgentle.devrouter.plist) into /Library/LaunchDaemons and start it with `sudo launchctl load /Library/LaunchDaemons/com.samgentle.devrouter.plist`
 
-Once the Devrouter is running, you need to redirect some TLD to it. I suggest `.dev`. On OS X you can putting this in `/etc/resolver/dev`:
+Once the Devrouter is running, you need to redirect some TLD to it. I suggest `.dev`. On OS X you can do that by putting this in `/etc/resolver/dev`:
 
 ```
 nameserver 127.0.0.1
@@ -30,9 +30,9 @@ port 10053
 Usage
 -----
 
-To use it, just type `devroute <command-here>`. Works great with http-server! `devroute http-server`
+To use it, just type `devroute <command-here>`. Works great with [http-server](https://github.com/indexzero/http-server)! `devroute http-server`
 
-There are some more options you can check out with `devroute --help`
+There are some more options you can check out with `devroute --help`, including setting a specific port and name
 
 You can also put static routes in /etc/devrouter.json, they should look like this:
 ```
