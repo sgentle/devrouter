@@ -1,0 +1,38 @@
+{
+  "name": "devrouter",
+  "version": "1.0.0",
+  "description": "Easy router for developing http services",
+  "main": "index.js",
+  "bin": {
+    "devroute": "cmd/devroute.js",
+    "devrouter": "cmd/devrouter.js"
+  },
+  "dependencies": {
+    "bouncy": "^3.2.2",
+    "coffee-script": "^1.10.0",
+    "freeport-promise": "^1.0.0",
+    "http-server": "^0.8.5",
+    "native-dns": "^0.7.0",
+    "ws": "^0.8.1",
+    "yargs": "^3.31.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam Gentle <sam@samgentle.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgentle/devrouter.git"
+  },
+  "keywords": [
+    "Dev",
+    "Development",
+    "Router"
+  ],
+  "bugs": {
+    "url": "https://github.com/sgentle/devrouter/issues"
+  },
+  "homepage": "https://github.com/sgentle/devrouter"
+}
