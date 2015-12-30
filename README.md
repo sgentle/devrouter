@@ -15,6 +15,8 @@ Devrouter is on npm, so install it with `npm install -g devrouter`
 
 You run the Devrouter service with `devrouter`, but you will probably need to `sudo devrouter` so that it can run as port 80. There are other, more secure ways of doing this, but they are all a bit annoying. We drop privileges after listening, so it's not so bad, but you may want to have a look through the code to make sure.
 
+If you want it to run at startup, you can copy [the plist file](https://github.com/sgentle/devrouter/blob/master/com.samgentle.devrouter.plist) into /Library/LaunchDaemons and start it with `sudo launchctl load /Library/LaunchDaemons/com.samgentle.devrouter.plist`
+
 Once the Devrouter is running, you need to redirect some TLD to it. I suggest `.dev`. On OS X you can putting this in `/etc/resolver/dev`:
 
 ```
