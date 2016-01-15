@@ -8,7 +8,9 @@
       "voteRatio": 0.666
     }
   },
-  "voters": [],
+  "voters": [
+    "davidbanham"
+  ],
   "collaborators": [
     "sgentle"
   ]
