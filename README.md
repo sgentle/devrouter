@@ -53,6 +53,7 @@ npm install -g devrouter
 sudo devrouter
 sudo sh -c 'echo nameserver 127.0.0.1\\nport 10053 > /etc/resolver/dev'
 cd my-project
+devroute ./thing_that_runs_my_server
 open http://my-project.dev
 ```
 
