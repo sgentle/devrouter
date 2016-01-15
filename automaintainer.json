@@ -4,7 +4,8 @@
       "pulls": 1
     },
     "accept_pull": {
-      "votes": 2
+      "votes": 2,
+      "voteRatio": 0.666
     }
   },
   "voters": [],
