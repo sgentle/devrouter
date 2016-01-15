@@ -41,10 +41,23 @@ Generally the way you would use it is take your existing http serving command
           route[argv.name] = port
           console.log "Route: #{argv.name}.dev => localhost:#{port}"
           ws.send JSON.stringify route
-        ws.on 'close', -> setTimeout connect, 1000
-        ws.on 'error', -> setTimeout connect, 5000
+
+          run()
+
+        ws.on 'close', -> reconnect 1000
+        ws.on 'error', (e) -> reconnect 5000, e
+
+        reconnect = (ms, e) ->
+          console.error "devrouter connection failed. Reconnecting in #{ms} ms"
+          console.error e if e
+          setTimeout connect, ms
+
       connect()
 
+    running = false
+    run = ->
+      return if running
+      running = true
       process.env.PORT = port if argv.env
       if argv._.length > 0
         console.log "Spawning", argv._[0]
