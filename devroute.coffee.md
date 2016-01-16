@@ -54,11 +54,11 @@ Generally the way you would use it is take your existing http serving command
 
       connect()
 
-    running = false
-    run = ->
-      return if running
-      running = true
-      process.env.PORT = port if argv.env
-      if argv._.length > 0
-        console.log "Spawning", argv._[0]
-        spawn argv._[0], argv._.slice(1), stdio: 'inherit'
+      running = false
+      run = ->
+        return if running
+        running = true
+        process.env.PORT = port if argv.env
+        if argv._.length > 0
+          console.log "Spawning", argv._[0]
+          spawn argv._[0], argv._.slice(1), stdio: 'inherit'
