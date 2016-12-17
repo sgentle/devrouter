@@ -19,7 +19,8 @@ platform.
     fs = require 'fs'
     WebSocketServer = require('ws').Server
     dns = require 'native-dns'
-    bouncy = require 'bouncy'
+    httpProxy = require 'http-proxy'
+    http = require 'http'
 
     ttl = 60
     dnsPort = 10053
@@ -75,49 +76,61 @@ Pretty simple stuff. We just return our host for every query we get.
 HTTP Router
 -----------
 
-This router passes connections through to whatever ports are defined in the registry.
+This router is where all the http traffic goes before it hits the devrouted
+service. For the root domain (ie 'dev.' or 'localhost' or '127.0.0.1') we
+handle the request ourselves with a homepage. For everything else we look the
+port up in our registry and route the traffic there.
 
-Handle errors in the routed connection (eg server not up)
-
-    handleError = (res) -> (e) ->
-      res.statusCode = 500
-      res.end JSON.stringify e
 
 Our homepage is just a list of routed names/ports.
 
     home = (req, res) ->
-      return if req.headers.connection is 'Upgrade'
       return res.end ("#{name}.dev => localhost:#{port}" for name, {port} of registry).join '\n'
 
-The router itself goes to the homepage on the root domain ie 'dev.' or
-'localhost' or '127.0.0.1'. For anything else it looks up the root domain in
-our registry and routes the request there.
+This is a helper to turn a request header into a name we can use in our lookup
+table. Note that the empty string represents home.
 
-    router = bouncy (req, res, bounce) ->
-      return home(req, res) if !req.headers.host or req.headers.host.match /^[\d.]+$/
-
+    getName = (req) ->
+      return '' if !req.headers.host or req.headers.host.match /^[\d.]+$/
       hostParts = req.headers.host.split '.'
       hostParts.pop() if hostParts[hostParts.length-1] is ''
-      console.log "hostParts", hostParts
-      return home(req, res) unless hostParts.length > 1
-
+      return '' unless hostParts.length > 1
       name = hostParts[hostParts.length-2]
-      if port = registry[name]
-        s = bounce port
-        s.on 'error', handleError res
+      return name
+
+The router is some simple logic around a node http server. We let http-proxy
+handle the heavy lifting.
+
+    proxy = httpProxy.createProxyServer()
+
+    router = http.createServer (req, res) ->
+      name = getName req
+      return home(req, res) if !name
+
+      if port = registry[name]?.port
+        console.log "http://#{name}#{req.url} -> http://localhost:#{port}#{req.url}"
+        proxy.web req, res, target: "http://localhost:#{port}"
+      else
+        res.statusCode = 404
+        res.end "#{name} not found"
+
+We handle websocket connections in much the same way. We have a control
+websocket for `devroute` instances on the home route, so we keep those, but
+everything else gets proxied.
+
+    router.on 'upgrade', (req, socket, head) ->
+      name = getName req
+      if name is ''
+        wss.handleUpgrade req, socket, head, (client) -> wss.emit 'connection', client
+      else if name and port = registry[name]?.port
+        console.log "ws://#{name}#{req.url} -> ws://localhost:#{port}#{req.url}"
+        proxy.ws req, socket, head, target: "http://localhost:#{port}"
       else
         res.statusCode = 404
         res.end "#{name} not found"
 
     router.listen httpPort, host
 
-Drop privileges if we're root.
-
-    process.nextTick ->
-      if process.getuid() is 0
-        process.setgid 'nobody'
-        process.setuid 'nobody'
-        throw new Error "Couldn't drop privileges" if process.getuid() is 0
 
 Websocket Controller
 --------------------
@@ -130,7 +143,7 @@ connection, and removed when that connection terminates. The only exception
 are routes added within the config file at startup.
 
     nextid = 0
-    wss = new WebSocketServer server: router
+    wss = new WebSocketServer noServer: true
     wss.on 'connection', (ws) ->
       id = nextid++
       console.log "Client connected", id
@@ -143,3 +156,15 @@ are routes added within the config file at startup.
         delRoutes id
         console.log "Client disconnected", id
 
+
+Drop privileges
+---------------
+
+Drop privileges if we're root. We have to do this on nextTick so that the
+event loop has time to set up sockets and things.
+
+    process.nextTick ->
+      if process.getuid() is 0
+        process.setgid 'nobody'
+        process.setuid 'nobody'
+        throw new Error "Couldn't drop privileges" if process.getuid() is 0
