@@ -126,8 +126,12 @@ everything else gets proxied.
         console.log "ws://#{name}#{req.url} -> ws://localhost:#{port}#{req.url}"
         proxy.ws req, socket, head, target: "http://localhost:#{port}"
       else
-        res.statusCode = 404
-        res.end "#{name} not found"
+        socket.write('HTTP/1.1 404 Not Found\r\n' +
+          'Upgrade: WebSocket\r\n' +
+          'Connection: Upgrade\r\n' +
+          '\r\n')
+        socket.end()
+
 
     router.listen httpPort, host
 
