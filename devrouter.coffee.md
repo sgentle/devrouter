@@ -102,6 +102,7 @@ The router is some simple logic around a node http server. We let http-proxy
 handle the heavy lifting.
 
     proxy = httpProxy.createProxyServer()
+    proxy.on 'error', (err) -> console.error "proxy error", err
 
     router = http.createServer (req, res) ->
       name = getName req

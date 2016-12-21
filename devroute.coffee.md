@@ -45,7 +45,7 @@ Generally the way you would use it is take your existing http serving command
           run()
 
         ws.on 'close', -> reconnect 1000
-        ws.on 'error', (e) -> reconnect 5000, e
+        ws.on 'error', (e) -> console.error e
 
         reconnect = (ms, e) ->
           console.error "devrouter connection failed. Reconnecting in #{ms} ms"
